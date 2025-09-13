@@ -95,8 +95,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Dynamically point download links to the latest GitHub Release asset
     (function setupLatestReleaseDownloads() {
-        const owner = 'BragiAI';
-        const repo = 'simple_website';
+        const owner = 'PrisacariuRobert';
+        const repo = 'simple-web';
         const api = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
         const links = document.querySelectorAll('a[data-download]');
         if (!links.length) return;
