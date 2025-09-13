@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Browser - The Future of Browsing</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="main-nav">
+            <a href="#" class="logo">Simple</a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#design">Design</a></li>
+                <li><a href="#tutorial">Extensions</a></li>
+                <li><a href="#download">Download</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Search. Found.</h1>
+                <p class="hero-subtitle">Why browse through thousands of links when GPT-5 can find what you need, instantly? Welcome to the future of browsing.</p>
+                <div class="hero-buttons">
+                    <a href="https://github.com/BragiAI/simple_website/releases/latest" class="btn btn-primary" data-download>Download Now</a>
+                    <a href="#features" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image-placeholder">
+                <video autoplay muted loop playsinline>
+                    <source src="intro.mov" type="video/mp4">
+                </video>
+            </div>
+        </section>
+
+        <section id="features" class="features-section">
+            <div class="feature-item reveal">
+                <div class="feature-text">
+                    <h2>Let GPT-5 do the searching.</h2>
+                    <p>Describe what you're looking for, and our browser's AI will analyze, understand, and deliver the answer directly to you. No more endless scrolling. Just clarity.</p>
+                </div>
+                <div class="feature-image-placeholder">
+                    <video muted loop playsinline>
+                        <source src="aisearch.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+            <div class="feature-item reveal">
+                <div class="feature-text">
+                    <h2>The web, your way.</h2>
+                    <p>Sometimes you want to explore. Switch to classic browsing mode anytime and navigate the web with a clean, fast, and intuitive interface. Your workflow, uninterrupted.</p>
+                </div>
+                <div class="feature-image-placeholder">
+                    <video muted loop playsinline>
+                        <source src="explore.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+            <div class="feature-item reveal">
+                <div class="feature-text">
+                    <h2>Gestures that feel natural.</h2>
+                    <p>Navigate with a flick of your wrist. Our enhanced trackpad gestures make browsing smoother and more intuitive than ever before. Two fingers to switch tabs, a pinch to see your overview, and more.</p>
+                </div>
+                <div class="feature-image-placeholder">
+                    <video muted loop playsinline>
+                        <source src="gesture.mov" type="video/mp4">
+                    </video>
+                </div>
+               
+            </div>
+        </section>
+
+        <section id="design" class="design-section reveal">
+            <div class="design-grid">
+                <div class="design-copy glass-card">
+                    <h2>Beautifully, unmistakably Simple.</h2>
+                    <p>A quiet interface that steps aside. Frosted glass, subtle depth, and motion that feels native to macOS.</p>
+                    <ul class="design-highlights">
+                        <li>Live blur and translucent layers</li>
+                        <li>Precision‑rounded corners and gentle shadows</li>
+                        <li>Dark palette tuned for focus and comfort</li>
+                        <li>Motion that guides — never distracts</li>
+                    </ul>
+                </div>
+                <div class="design-media glass-card">
+                    <video autoplay muted loop playsinline class="design-video">
+                        <source src="design.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <section id="tutorial" class="tutorial-section reveal">
+            <h2>Simple Extensions.</h2>
+            <p class="tutorial-intro">Customize your browser with powerful extensions from the Chrome Web Store.</p>
+            <div class="tutorial-steps">
+                <div class="step">
+                    <img src="step1.png" alt="Chrome Web Store extension page" class="step-image"> 
+                    <h3>1. Find your extension</h3>
+                    <p>Navigate to the Chrome Web Store and find the extension you want to install.</p>
+                </div>
+                <div class="step">
+                    <video autoplay muted loop playsinline class="step-video">
+                        <source src="copy.mov" type="video/mp4">
+                    </video>
+                    <h3>2. Copy the link</h3>
+                    <p>Simply copy the URL of the extension's page from your address bar.</p>
+                </div>
+                <div class="step">
+                    <video autoplay muted loop playsinline class="step-video">
+                        <source src="add.mov" type="video/mp4">
+                    </video>
+                    <h3>3. Paste and install</h3>
+                    <p>Open the Extension Manager in Simple, paste the link, and click 'Install'. It's that easy.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer id="download" class="main-footer-section">
+        <div class="footer-content">
+            <h2>Ready to change the way you browse?</h2>
+            <a href="https://github.com/BragiAI/simple_website/releases/latest" class="btn btn-primary" data-download>Download for Mac</a>
+            <p class="footer-note">Simple Browser for macOS. More platforms coming soon.</p>
+        </div>
+        <div class="footer-links">
+            <p>&copy; 2024 Simple Browser. All rights reserved.</p>
+            <ul>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Private Admin Panel (visible only with ?simple_admin=1&secret=YOUR_SECRET) -->
+    <div id="admin-panel" class="admin-panel" hidden>
+        <div class="admin-panel-header">Private Stats</div>
+        <div class="admin-panel-row">
+            <span>Downloads</span>
+            <strong id="download-count">0</strong>
+        </div>
+        <div class="admin-panel-note">Add <code>?simple_admin=1&amp;secret=YOUR_SECRET</code> to the URL to view</div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

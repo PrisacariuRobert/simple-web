@@ -1,0 +1,9 @@
+# macOS system files
+.DS_Store
+
+# App release binaries (host on GitHub Releases instead of Git)
+version/
+*.dmg
+Simple-*.zip
+
+
