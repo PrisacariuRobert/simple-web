@@ -1,5 +1,42 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Responsive video loading - high quality for desktop, low quality for mobile
+    const setVideoSources = () => {
+        const isMobile = window.innerWidth <= 768;
+        const responsiveVideos = document.querySelectorAll('video[data-desktop-src][data-mobile-src]');
+        
+        responsiveVideos.forEach(video => {
+            const desktopSrc = video.getAttribute('data-desktop-src');
+            const mobileSrc = video.getAttribute('data-mobile-src');
+            const targetSrc = isMobile ? mobileSrc : desktopSrc;
+            
+            const currentSource = video.querySelector('source');
+            if (currentSource && currentSource.src !== targetSrc) {
+                const wasPlaying = !video.paused;
+                const currentTime = video.currentTime;
+                
+                currentSource.src = targetSrc;
+                video.load(); // Reload the video element
+                
+                // Restore playback state if it was playing
+                if (wasPlaying) {
+                    video.currentTime = currentTime;
+                    video.play().catch(() => {});
+                }
+            }
+        });
+    };
+    
+    // Set initial video sources
+    setVideoSources();
+    
+    // Update video sources on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(setVideoSources, 250);
+    });
+
     // Simple scroll reveal animation
     const revealElements = document.querySelectorAll('.reveal');
 

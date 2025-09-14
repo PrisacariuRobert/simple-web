@@ -491,33 +491,54 @@ body {
     }
 
     .design-section {
-        padding: 50px 1rem;
+        padding: 50px 0.5rem;
+        overflow-x: hidden;
     }
 
     .design-grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1rem;
+        margin: 0;
+        max-width: 100%;
     }
 
     .design-copy {
-        padding: 1.5rem 2rem;
+        padding: 1.25rem 1.5rem;
+        margin: 0 0.5rem;
     }
 
     .design-copy h2 {
-        font-size: 2rem;
+        font-size: 1.75rem;
+        line-height: 1.2;
+        word-wrap: break-word;
     }
 
     .design-copy p {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .design-highlights {
+        padding-left: 1rem;
+        margin: 1rem 0;
+    }
+
+    .design-highlights li {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
     }
 
     .design-media {
-        height: 250px;
+        height: 220px;
+        margin: 0 0.5rem;
     }
 
     .design-video {
         object-fit: contain;
         background: #000;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
     }
 
     .tutorial-section {
