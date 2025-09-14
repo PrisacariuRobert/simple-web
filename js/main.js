@@ -29,6 +29,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Mobile detection
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+    // On mobile, if a data-mobile-src exists and the file is present, prefer it
+    if (isMobile) {
+        const vidsWithMobileSrc = document.querySelectorAll('video[data-mobile-src]');
+        vidsWithMobileSrc.forEach(v => {
+            const mobileSrc = v.getAttribute('data-mobile-src');
+            if (!mobileSrc) return;
+            try {
+                fetch(mobileSrc, { method: 'HEAD', cache: 'no-store' })
+                    .then(res => {
+                        if (res && res.ok) {
+                            let firstSource = v.querySelector('source');
+                            if (!firstSource) {
+                                firstSource = document.createElement('source');
+                                v.appendChild(firstSource);
+                            }
+                            firstSource.src = mobileSrc;
+                            firstSource.type = 'video/mp4';
+                            v.load();
+                        }
+                    })
+                    .catch(() => {});
+            } catch (_) { /* noop */ }
+        });
+    }
     
     // Normalize attributes for mobile autoplay reliability
     allVideos.forEach(v => {

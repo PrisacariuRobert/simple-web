@@ -450,7 +450,6 @@ body {
         height: auto;
         aspect-ratio: 16 / 9;
         margin-top: 2rem;
-        background: rgba(255, 255, 255, 0.1); /* More visible background for debugging */
         min-height: 200px; /* Ensure container has height */
     }
     .hero-image-placeholder video {
@@ -467,7 +466,6 @@ body {
     .feature-image-placeholder {
         height: auto;
         aspect-ratio: 16 / 9;
-        background: rgba(255, 255, 255, 0.1); /* More visible background for debugging */
         min-height: 200px; /* Ensure container has height */
     }
     .feature-image-placeholder video {
