@@ -443,39 +443,42 @@ body {
         height: 300px;
     }
 
-    /* Mobile video sizing: reliable 16:9 containers (works on older iOS) */
-    .hero-image-placeholder,
-    .feature-image-placeholder,
-    .design-media {
-        position: relative;
+    /* Mobile video sizing: show full video without cropping */
+    .hero-image-placeholder {
         width: 92%;
         max-width: 700px;
-        height: 0;
-        padding-top: 56.25%; /* 16:9 */
-        margin-left: auto;
-        margin-right: auto;
+        height: auto;
+        aspect-ratio: 16 / 9;
         margin-top: 2rem;
+        background: rgba(255, 255, 255, 0.1); /* More visible background for debugging */
+        min-height: 200px; /* Ensure container has height */
     }
-    /* Feature and design placeholders already full width; keep them so */
-    .features-section .feature-image-placeholder,
-    .design-section .design-media {
-        width: 100%;
-        max-width: none;
-        margin-top: 0;
-    }
-    .hero-image-placeholder video,
-    .feature-image-placeholder video,
-    .design-media .design-video {
-        position: absolute;
-        inset: 0;
+    .hero-image-placeholder video {
+        object-fit: contain;
         width: 100%;
         height: 100%;
-        object-fit: contain;
         display: block;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
+    }
+
+    .feature-image-placeholder {
+        height: auto;
+        aspect-ratio: 16 / 9;
+        background: rgba(255, 255, 255, 0.1); /* More visible background for debugging */
+        min-height: 200px; /* Ensure container has height */
+    }
+    .feature-image-placeholder video {
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .design-media {
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+    .design-video {
+        object-fit: contain;
     }
 
     .step-image,

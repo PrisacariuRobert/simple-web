@@ -36,16 +36,32 @@ document.addEventListener('DOMContentLoaded', function() {
             v.setAttribute('webkit-playsinline', '');
             v.removeAttribute('controls');
             v.preload = v.getAttribute('preload') || 'metadata';
-            // Do not force pause here; we'll decide based on visibility below
-            // Ensure the first frame is visible even if autoplay is blocked
-            const showFirstFrame = () => {
-                try {
-                    if (v.readyState >= 1 && v.currentTime === 0) {
-                        v.currentTime = 0.01; // Seek a tiny bit to render a frame
-                    }
-                } catch (_) {}
-            };
-            v.addEventListener('loadedmetadata', showFirstFrame, { once: true });
+            v.pause();
+            v.currentTime = 0;
+            
+            // Force load on mobile to ensure video is ready
+            v.load();
+            
+            // Add error handling
+            v.addEventListener('error', () => {
+                console.log('Video error:', v.src);
+                // Show poster if video fails
+                v.style.display = 'none';
+                const container = v.parentElement;
+                if (container && !container.querySelector('.video-fallback')) {
+                    const fallback = document.createElement('div');
+                    fallback.className = 'video-fallback';
+                    fallback.style.cssText = 'width:100%;height:100%;background:#333;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;';
+                    fallback.textContent = 'Video unavailable';
+                    container.appendChild(fallback);
+                }
+            });
+            
+            // Log when video is ready
+            v.addEventListener('canplay', () => {
+                console.log('Video ready:', v.src);
+            });
+            
         } catch (e) { /* noop */ }
     });
 
@@ -59,35 +75,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const pauseAndReset = (video) => {
         if (!video) return;
-        try {
-            video.pause();
-            // Keep a frame visible; if at 0, nudge slightly forward
-            if (video.currentTime === 0) {
-                video.currentTime = 0.01;
-            }
-        } catch (_) {}
+        video.pause();
+        // Reset so it starts from the beginning next time
+        video.currentTime = 0;
     };
-
-    // Start any videos already sufficiently visible on load
-    const isVisibleEnough = (el, fraction = 0.25) => {
-        const rect = el.getBoundingClientRect();
-        const vh = window.innerHeight || document.documentElement.clientHeight;
-        const visibleH = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
-        return rect.height > 0 && visibleH / rect.height >= fraction;
-    };
-
-    const kickstartVisibleVideos = () => {
-        allVideos.forEach(v => {
-            if (isVisibleEnough(v, 0.25)) {
-                playVideo(v);
-            }
-        });
-    };
-
-    kickstartVisibleVideos();
-    window.addEventListener('load', kickstartVisibleVideos, { once: true });
-    window.addEventListener('scroll', kickstartVisibleVideos, { passive: true });
-    window.addEventListener('resize', kickstartVisibleVideos);
 
     if ('IntersectionObserver' in window) {
         const videoObserver = new IntersectionObserver((entries) => {
@@ -136,13 +127,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // As a final fallback, attempt play on first user interaction (iOS stricter modes)
     const tryPlayAll = () => {
         allVideos.forEach(v => {
-            try { v.play().catch(() => {}); } catch (_) {}
+            try { 
+                if (v.paused && v.readyState >= 2) {
+                    v.play().catch(() => {});
+                }
+            } catch (_) {}
         });
         window.removeEventListener('touchstart', tryPlayAll, { passive: true });
         window.removeEventListener('click', tryPlayAll, { passive: true });
     };
     window.addEventListener('touchstart', tryPlayAll, { passive: true });
     window.addEventListener('click', tryPlayAll, { passive: true });
+    
+    // Force reload videos after a delay to handle mobile loading issues
+    setTimeout(() => {
+        allVideos.forEach(v => {
+            if (v.readyState === 0) {
+                console.log('Reloading video:', v.src);
+                v.load();
+            }
+        });
+    }, 2000);
 
     // Dynamically point download links to the latest GitHub Release asset
     (function setupLatestReleaseDownloads() {
