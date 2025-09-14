@@ -130,6 +130,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Scales the image to cover the container */
+    display: block;
 }
 
 /* Features Section */
@@ -181,6 +182,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Scales the video to cover the container */
+    display: block;
 }
 
 /* Design Section */
@@ -307,6 +309,7 @@ body {
     object-fit: cover;
     border-radius: 20px;
     margin-bottom: 1.5rem;
+    display: block;
 }
 
 .step h3 {
@@ -443,6 +446,7 @@ body {
     .design-media {
         height: auto;
         aspect-ratio: 16 / 9;
+        min-height: 220px; /* Fallback for older browsers */
     }
 
     /* Ensure videos are fully visible on small screens (no cropping) */
@@ -451,12 +455,14 @@ body {
         max-width: 100%;
         height: auto;
         aspect-ratio: 16 / 9;
+        min-height: 220px; /* Fallback for older browsers */
     }
 
     .feature-image-placeholder {
         height: auto;
         aspect-ratio: 16 / 9;
         background: rgba(255, 255, 255, 0.05);
+        min-height: 220px; /* Fallback for older browsers */
     }
 
     /* On mobile, favor contain to see the whole video, letterboxed if needed */

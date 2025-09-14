@@ -35,14 +35,30 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ensure mobile inline playback compatibility + defer heavy loading
     allVideos.forEach(v => {
         try {
+            const wantsAutoplay = v.hasAttribute('autoplay');
             v.setAttribute('muted', '');
             v.muted = true; // iOS requires the property as well
+            v.defaultMuted = true;
             v.setAttribute('playsinline', '');
             v.setAttribute('webkit-playsinline', '');
+            v.playsInline = true;
             v.removeAttribute('controls');
-            v.preload = 'metadata';
-            v.pause();
-            v.currentTime = 0;
+            // Respect author intent: if autoplay requested, keep eager preload
+            v.preload = wantsAutoplay ? (v.getAttribute('preload') || 'auto') : 'metadata';
+            if (!wantsAutoplay) {
+                v.pause();
+                v.currentTime = 0;
+            }
+
+            // Light diagnostics & resilience
+            const src = v.currentSrc || (v.querySelector('source') && v.querySelector('source').src) || '';
+            const log = (e) => {
+                try { console.debug('[video]', e.type, src, { readyState: v.readyState, paused: v.paused }); } catch (_) {}
+            };
+            ['loadedmetadata','canplay','canplaythrough','playing','pause','waiting','stalled','error'].forEach(evt => v.addEventListener(evt, log, { passive: true }));
+            v.addEventListener('error', () => { try { v.setAttribute('controls', ''); } catch (_) {} }, { passive: true });
+            v.addEventListener('canplay', () => { if (wantsAutoplay && v.paused) playVideo(v); }, { passive: true });
+            v.addEventListener('waiting', () => { if (wantsAutoplay && v.paused) playVideo(v); }, { passive: true });
         } catch (e) { /* noop */ }
     });
 
@@ -66,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const pauseAndReset = (video) => {
         if (!video) return;
+        if (video.hasAttribute('autoplay')) return; // Don't fight videos that are meant to keep playing
         video.pause();
         // Reset so it starts from the beginning next time
         video.currentTime = 0;
@@ -75,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target;
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
                     playVideo(video);
                 } else {
                     pauseAndReset(video);
@@ -84,8 +101,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, {
             root: null,
             // Trigger earlier on small screens
-            rootMargin: '10% 0% -10% 0%',
-            threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+            rootMargin: '15% 0% -5% 0%',
+            threshold: [0, 0.05, 0.1, 0.25, 0.5, 0.75, 1],
         });
 
         allVideos.forEach(v => videoObserver.observe(v));
@@ -123,6 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
     window.addEventListener('touchstart', tryKickstart, { once: true, passive: true });
+    window.addEventListener('click', tryKickstart, { once: true, passive: true });
+    // Also attempt once shortly after load for currently visible videos
+    setTimeout(tryKickstart, 300);
 
     // Pause all videos if the tab becomes hidden
     document.addEventListener('visibilitychange', () => {
