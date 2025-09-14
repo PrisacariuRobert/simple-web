@@ -20,122 +20,47 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', revealOnScroll);
     revealOnScroll(); // Initial check
     
-    // Autoplay videos when they scroll into view (include hero + tutorial)
+    // Autoplay section videos when they scroll into view
     const featureVideos = document.querySelectorAll('#features .feature-image-placeholder video');
     const designVideos = document.querySelectorAll('#design .design-video');
-    const heroVideos = document.querySelectorAll('.hero-image-placeholder video');
-    const tutorialVideos = document.querySelectorAll('#tutorial .step-video');
-    const allVideos = [...featureVideos, ...designVideos, ...heroVideos, ...tutorialVideos];
+    const stepVideos = document.querySelectorAll('.step-video');
+    const heroVideo = document.querySelector('.hero-image-placeholder video');
+    const allVideos = [
+        ...featureVideos,
+        ...designVideos,
+        ...stepVideos,
+        ...(heroVideo ? [heroVideo] : [])
+    ];
 
-    // Mobile detection
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-
-    // On mobile, if a data-mobile-src exists and the file is present, prefer it
-    if (isMobile) {
-        const vidsWithMobileSrc = document.querySelectorAll('video[data-mobile-src]');
-        vidsWithMobileSrc.forEach(v => {
-            const mobileSrc = v.getAttribute('data-mobile-src');
-            if (!mobileSrc) return;
-            try {
-                fetch(mobileSrc, { method: 'HEAD', cache: 'no-store' })
-                    .then(res => {
-                        if (res && res.ok) {
-                            let firstSource = v.querySelector('source');
-                            if (!firstSource) {
-                                firstSource = document.createElement('source');
-                                v.appendChild(firstSource);
-                            }
-                            firstSource.src = mobileSrc;
-                            firstSource.type = 'video/mp4';
-                            v.load();
-                        }
-                    })
-                    .catch(() => {});
-            } catch (_) { /* noop */ }
-        });
-    }
-    
-    // Normalize attributes for mobile autoplay reliability
+    // Ensure mobile inline playback compatibility + defer heavy loading
     allVideos.forEach(v => {
         try {
-            v.muted = true;
             v.setAttribute('muted', '');
+            v.muted = true; // iOS requires the property as well
             v.setAttribute('playsinline', '');
             v.setAttribute('webkit-playsinline', '');
             v.removeAttribute('controls');
-            v.preload = isMobile ? 'none' : 'auto'; // Don't preload on mobile to avoid restrictions
+            v.preload = 'metadata';
             v.pause();
             v.currentTime = 0;
-            
-            const container = v.parentElement;
-            
-            // On mobile, add play button overlay
-            if (isMobile && container) {
-                const playButton = document.createElement('div');
-                playButton.className = 'video-play-overlay';
-                playButton.addEventListener('click', () => {
-                    console.log('Play button clicked for:', v.src);
-                    v.load();
-                    v.play().then(() => {
-                        playButton.style.display = 'none';
-                        console.log('Video playing:', v.src);
-                    }).catch(e => {
-                        console.log('Mobile play failed:', e);
-                        playButton.textContent = 'Retry';
-                    });
-                });
-                container.appendChild(playButton);
-            }
-            
-            // Add comprehensive event logging
-            ['loadstart', 'loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough', 'error', 'stalled', 'suspend'].forEach(event => {
-                v.addEventListener(event, () => {
-                    console.log(`Video ${event}:`, v.src, 'readyState:', v.readyState);
-                });
-            });
-            
-            // Only auto-load on desktop
-            if (!isMobile) {
-                v.load();
-            }
-            
-            // Add error handling
-            v.addEventListener('error', () => {
-                console.log('Video error:', v.src, v.error);
-                if (container && !container.querySelector('.video-fallback')) {
-                    const fallback = document.createElement('div');
-                    fallback.className = 'video-fallback';
-                    fallback.style.cssText = 'width:100%;height:100%;background:#333;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;';
-                    fallback.textContent = 'Video unavailable - tap to retry';
-                    fallback.addEventListener('click', () => {
-                        v.style.display = 'block';
-                        v.load();
-                        fallback.remove();
-                    });
-                    container.appendChild(fallback);
-                }
-            });
-            
-        } catch (e) { console.log('Video setup error:', e); }
+        } catch (e) { /* noop */ }
     });
+
+    const ensureCanPlay = (video) => {
+        // If only metadata is loaded, ask the browser to fetch enough to play
+        try {
+            if (video.readyState < 2 /* HAVE_CURRENT_DATA */) {
+                video.load();
+            }
+        } catch (_) { /* noop */ }
+    };
 
     const playVideo = (video) => {
         if (!video) return;
-        console.log('Attempting to play video:', video.src, 'readyState:', video.readyState);
-        if (video.readyState < 2) {
-            console.log('Video not ready, loading first');
-            video.load();
-            video.addEventListener('canplay', () => {
-                const playPromise = video.play();
-                if (playPromise && typeof playPromise.then === 'function') {
-                    playPromise.catch(e => console.log('Play failed after load:', e));
-                }
-            }, { once: true });
-        } else {
-            const playPromise = video.play();
-            if (playPromise && typeof playPromise.then === 'function') {
-                playPromise.catch(e => console.log('Play failed:', e));
-            }
+        ensureCanPlay(video);
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.then === 'function') {
+            playPromise.catch(() => {});
         }
     };
 
@@ -151,21 +76,16 @@ document.addEventListener('DOMContentLoaded', function() {
             entries.forEach(entry => {
                 const video = entry.target;
                 if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
-                    // Only auto-play on desktop, mobile requires user interaction
-                    if (!isMobile) {
-                        playVideo(video);
-                    }
+                    playVideo(video);
                 } else {
-                    if (!isMobile) {
-                        pauseAndReset(video);
-                    }
+                    pauseAndReset(video);
                 }
             });
         }, {
             root: null,
-            // Start when a quarter of the video is visible
-            rootMargin: '0px 0px -15% 0px',
-            threshold: [0, 0.25, 0.5, 0.75, 1],
+            // Trigger earlier on small screens
+            rootMargin: '10% 0% -10% 0%',
+            threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
         });
 
         allVideos.forEach(v => videoObserver.observe(v));
@@ -175,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const vh = window.innerHeight || document.documentElement.clientHeight;
             allVideos.forEach(v => {
                 const rect = v.getBoundingClientRect();
-                const visible = rect.top < vh * 0.75 && rect.bottom > vh * 0.25;
+                const visible = rect.top < vh * 0.6 && rect.bottom > vh * 0.4;
                 if (visible) {
                     playVideo(v);
                 } else {
@@ -188,50 +108,27 @@ document.addEventListener('DOMContentLoaded', function() {
         checkVideosInView();
     }
 
+    // Try to play the hero video immediately (most devices will allow muted inline autoplay)
+    if (heroVideo) {
+        playVideo(heroVideo);
+    }
+
+    // iOS safety net: on first user interaction, try to play any in-view videos
+    const tryKickstart = () => {
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        allVideos.forEach(v => {
+            const r = v.getBoundingClientRect();
+            const visible = r.top < vh * 0.9 && r.bottom > vh * 0.1;
+            if (visible) playVideo(v);
+        });
+    };
+    window.addEventListener('touchstart', tryKickstart, { once: true, passive: true });
+
     // Pause all videos if the tab becomes hidden
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             allVideos.forEach(pauseAndReset);
         }
-    });
-
-    // As a final fallback, attempt play on first user interaction (iOS stricter modes)
-    const tryPlayAll = () => {
-        allVideos.forEach(v => {
-            try { 
-                if (v.paused && v.readyState >= 2) {
-                    v.play().catch(() => {});
-                }
-            } catch (_) {}
-        });
-        window.removeEventListener('touchstart', tryPlayAll, { passive: true });
-        window.removeEventListener('click', tryPlayAll, { passive: true });
-    };
-    window.addEventListener('touchstart', tryPlayAll, { passive: true });
-    window.addEventListener('click', tryPlayAll, { passive: true });
-    
-    // Force reload videos after a delay to handle mobile loading issues
-    setTimeout(() => {
-        allVideos.forEach(v => {
-            console.log('Video state check:', v.src, 'readyState:', v.readyState, 'networkState:', v.networkState);
-            if (v.readyState === 0) {
-                console.log('Reloading video:', v.src);
-                v.load();
-            }
-        });
-    }, 2000);
-    
-    // Add click handlers to poster images to manually trigger video load
-    allVideos.forEach(v => {
-        v.addEventListener('click', () => {
-            console.log('Manual video play attempt:', v.src);
-            if (v.readyState === 0) {
-                v.load();
-            }
-            setTimeout(() => {
-                v.play().catch(e => console.log('Manual play failed:', e));
-            }, 100);
-        });
     });
 
     // Dynamically point download links to the latest GitHub Release asset

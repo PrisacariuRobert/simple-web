@@ -425,6 +425,7 @@ body {
 
     .feature-item {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
     .feature-item:nth-child(even) .feature-text {
@@ -440,89 +441,37 @@ body {
     }
 
     .design-media {
-        height: 300px;
-    }
-
-    /* Mobile video sizing: show full video without cropping */
-    .hero-image-placeholder {
-        width: 92%;
-        max-width: 700px;
         height: auto;
         aspect-ratio: 16 / 9;
-        margin-top: 2rem;
-        min-height: 200px; /* Ensure container has height */
     }
-    .hero-image-placeholder video {
-        object-fit: contain;
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-    
+
+    /* Ensure videos are fully visible on small screens (no cropping) */
     .hero-image-placeholder {
-        position: relative;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
     }
 
     .feature-image-placeholder {
         height: auto;
         aspect-ratio: 16 / 9;
-        min-height: 200px; /* Ensure container has height */
-    }
-    .feature-image-placeholder video {
-        object-fit: contain;
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-    
-    /* Mobile video play button overlay */
-    .video-play-overlay {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 60px;
-        height: 60px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 10;
-        transition: all 0.3s ease;
-    }
-    
-    .video-play-overlay:hover {
-        background: rgba(255, 255, 255, 1);
-        transform: translate(-50%, -50%) scale(1.1);
-    }
-    
-    .video-play-overlay::after {
-        content: '';
-        width: 0;
-        height: 0;
-        border-left: 16px solid #000;
-        border-top: 10px solid transparent;
-        border-bottom: 10px solid transparent;
-        margin-left: 4px;
-    }
-    
-    .feature-image-placeholder {
-        position: relative;
+        background: rgba(255, 255, 255, 0.05);
     }
 
-    .design-media {
-        height: auto;
-        aspect-ratio: 16 / 9;
-    }
-    .design-video {
-        object-fit: contain;
-    }
-
-    .step-image,
+    /* On mobile, favor contain to see the whole video, letterboxed if needed */
+    .hero-image-placeholder video,
+    .feature-image-placeholder video,
+    .design-video,
     .step-video {
-        height: auto;
-        aspect-ratio: 16 / 9;
+        object-fit: contain;
+        background-color: #000;
+    }
+
+    .feature-text h2 {
+        font-size: 2rem;
+    }
+    .feature-text p {
+        font-size: 1rem;
     }
 }
