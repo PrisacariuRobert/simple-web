@@ -36,8 +36,16 @@ document.addEventListener('DOMContentLoaded', function() {
             v.setAttribute('webkit-playsinline', '');
             v.removeAttribute('controls');
             v.preload = v.getAttribute('preload') || 'metadata';
-            v.pause();
-            v.currentTime = 0;
+            // Do not force pause here; we'll decide based on visibility below
+            // Ensure the first frame is visible even if autoplay is blocked
+            const showFirstFrame = () => {
+                try {
+                    if (v.readyState >= 1 && v.currentTime === 0) {
+                        v.currentTime = 0.01; // Seek a tiny bit to render a frame
+                    }
+                } catch (_) {}
+            };
+            v.addEventListener('loadedmetadata', showFirstFrame, { once: true });
         } catch (e) { /* noop */ }
     });
 
@@ -51,10 +59,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const pauseAndReset = (video) => {
         if (!video) return;
-        video.pause();
-        // Reset so it starts from the beginning next time
-        video.currentTime = 0;
+        try {
+            video.pause();
+            // Keep a frame visible; if at 0, nudge slightly forward
+            if (video.currentTime === 0) {
+                video.currentTime = 0.01;
+            }
+        } catch (_) {}
     };
+
+    // Start any videos already sufficiently visible on load
+    const isVisibleEnough = (el, fraction = 0.25) => {
+        const rect = el.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        const visibleH = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
+        return rect.height > 0 && visibleH / rect.height >= fraction;
+    };
+
+    const kickstartVisibleVideos = () => {
+        allVideos.forEach(v => {
+            if (isVisibleEnough(v, 0.25)) {
+                playVideo(v);
+            }
+        });
+    };
+
+    kickstartVisibleVideos();
+    window.addEventListener('load', kickstartVisibleVideos, { once: true });
+    window.addEventListener('scroll', kickstartVisibleVideos, { passive: true });
+    window.addEventListener('resize', kickstartVisibleVideos);
 
     if ('IntersectionObserver' in window) {
         const videoObserver = new IntersectionObserver((entries) => {

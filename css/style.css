@@ -443,32 +443,39 @@ body {
         height: 300px;
     }
 
-    /* Mobile video sizing: show full video without cropping */
-    .hero-image-placeholder {
+    /* Mobile video sizing: reliable 16:9 containers (works on older iOS) */
+    .hero-image-placeholder,
+    .feature-image-placeholder,
+    .design-media {
+        position: relative;
         width: 92%;
         max-width: 700px;
-        height: auto;
-        aspect-ratio: 16 / 9;
+        height: 0;
+        padding-top: 56.25%; /* 16:9 */
+        margin-left: auto;
+        margin-right: auto;
         margin-top: 2rem;
     }
-    .hero-image-placeholder video {
+    /* Feature and design placeholders already full width; keep them so */
+    .features-section .feature-image-placeholder,
+    .design-section .design-media {
+        width: 100%;
+        max-width: none;
+        margin-top: 0;
+    }
+    .hero-image-placeholder video,
+    .feature-image-placeholder video,
+    .design-media .design-video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         object-fit: contain;
-    }
-
-    .feature-image-placeholder {
-        height: auto;
-        aspect-ratio: 16 / 9;
-    }
-    .feature-image-placeholder video {
-        object-fit: contain;
-    }
-
-    .design-media {
-        height: auto;
-        aspect-ratio: 16 / 9;
-    }
-    .design-video {
-        object-fit: contain;
+        display: block;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
     }
 
     .step-image,
