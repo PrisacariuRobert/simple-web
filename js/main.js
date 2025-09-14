@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const tutorialVideos = document.querySelectorAll('#tutorial .step-video');
     const allVideos = [...featureVideos, ...designVideos, ...heroVideos, ...tutorialVideos];
 
+    // Mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    
     // Normalize attributes for mobile autoplay reliability
     allVideos.forEach(v => {
         try {
@@ -35,9 +38,29 @@ document.addEventListener('DOMContentLoaded', function() {
             v.setAttribute('playsinline', '');
             v.setAttribute('webkit-playsinline', '');
             v.removeAttribute('controls');
-            v.preload = 'auto'; // Change to 'auto' for more aggressive loading
+            v.preload = isMobile ? 'none' : 'auto'; // Don't preload on mobile to avoid restrictions
             v.pause();
             v.currentTime = 0;
+            
+            const container = v.parentElement;
+            
+            // On mobile, add play button overlay
+            if (isMobile && container) {
+                const playButton = document.createElement('div');
+                playButton.className = 'video-play-overlay';
+                playButton.addEventListener('click', () => {
+                    console.log('Play button clicked for:', v.src);
+                    v.load();
+                    v.play().then(() => {
+                        playButton.style.display = 'none';
+                        console.log('Video playing:', v.src);
+                    }).catch(e => {
+                        console.log('Mobile play failed:', e);
+                        playButton.textContent = 'Retry';
+                    });
+                });
+                container.appendChild(playButton);
+            }
             
             // Add comprehensive event logging
             ['loadstart', 'loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough', 'error', 'stalled', 'suspend'].forEach(event => {
@@ -46,15 +69,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
             
-            // Force load on mobile to ensure video is ready
-            v.load();
+            // Only auto-load on desktop
+            if (!isMobile) {
+                v.load();
+            }
             
             // Add error handling
             v.addEventListener('error', () => {
                 console.log('Video error:', v.src, v.error);
-                // Show poster if video fails
-                v.style.display = 'none';
-                const container = v.parentElement;
                 if (container && !container.querySelector('.video-fallback')) {
                     const fallback = document.createElement('div');
                     fallback.className = 'video-fallback';
@@ -104,9 +126,14 @@ document.addEventListener('DOMContentLoaded', function() {
             entries.forEach(entry => {
                 const video = entry.target;
                 if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
-                    playVideo(video);
+                    // Only auto-play on desktop, mobile requires user interaction
+                    if (!isMobile) {
+                        playVideo(video);
+                    }
                 } else {
-                    pauseAndReset(video);
+                    if (!isMobile) {
+                        pauseAndReset(video);
+                    }
                 }
             });
         }, {
