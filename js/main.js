@@ -35,16 +35,23 @@ document.addEventListener('DOMContentLoaded', function() {
             v.setAttribute('playsinline', '');
             v.setAttribute('webkit-playsinline', '');
             v.removeAttribute('controls');
-            v.preload = v.getAttribute('preload') || 'metadata';
+            v.preload = 'auto'; // Change to 'auto' for more aggressive loading
             v.pause();
             v.currentTime = 0;
+            
+            // Add comprehensive event logging
+            ['loadstart', 'loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough', 'error', 'stalled', 'suspend'].forEach(event => {
+                v.addEventListener(event, () => {
+                    console.log(`Video ${event}:`, v.src, 'readyState:', v.readyState);
+                });
+            });
             
             // Force load on mobile to ensure video is ready
             v.load();
             
             // Add error handling
             v.addEventListener('error', () => {
-                console.log('Video error:', v.src);
+                console.log('Video error:', v.src, v.error);
                 // Show poster if video fails
                 v.style.display = 'none';
                 const container = v.parentElement;
@@ -52,24 +59,36 @@ document.addEventListener('DOMContentLoaded', function() {
                     const fallback = document.createElement('div');
                     fallback.className = 'video-fallback';
                     fallback.style.cssText = 'width:100%;height:100%;background:#333;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;';
-                    fallback.textContent = 'Video unavailable';
+                    fallback.textContent = 'Video unavailable - tap to retry';
+                    fallback.addEventListener('click', () => {
+                        v.style.display = 'block';
+                        v.load();
+                        fallback.remove();
+                    });
                     container.appendChild(fallback);
                 }
             });
             
-            // Log when video is ready
-            v.addEventListener('canplay', () => {
-                console.log('Video ready:', v.src);
-            });
-            
-        } catch (e) { /* noop */ }
+        } catch (e) { console.log('Video setup error:', e); }
     });
 
     const playVideo = (video) => {
         if (!video) return;
-        const playPromise = video.play();
-        if (playPromise && typeof playPromise.then === 'function') {
-            playPromise.catch(() => {});
+        console.log('Attempting to play video:', video.src, 'readyState:', video.readyState);
+        if (video.readyState < 2) {
+            console.log('Video not ready, loading first');
+            video.load();
+            video.addEventListener('canplay', () => {
+                const playPromise = video.play();
+                if (playPromise && typeof playPromise.then === 'function') {
+                    playPromise.catch(e => console.log('Play failed after load:', e));
+                }
+            }, { once: true });
+        } else {
+            const playPromise = video.play();
+            if (playPromise && typeof playPromise.then === 'function') {
+                playPromise.catch(e => console.log('Play failed:', e));
+            }
         }
     };
 
@@ -142,12 +161,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Force reload videos after a delay to handle mobile loading issues
     setTimeout(() => {
         allVideos.forEach(v => {
+            console.log('Video state check:', v.src, 'readyState:', v.readyState, 'networkState:', v.networkState);
             if (v.readyState === 0) {
                 console.log('Reloading video:', v.src);
                 v.load();
             }
         });
     }, 2000);
+    
+    // Add click handlers to poster images to manually trigger video load
+    allVideos.forEach(v => {
+        v.addEventListener('click', () => {
+            console.log('Manual video play attempt:', v.src);
+            if (v.readyState === 0) {
+                v.load();
+            }
+            setTimeout(() => {
+                v.play().catch(e => console.log('Manual play failed:', e));
+            }, 100);
+        });
+    });
 
     // Dynamically point download links to the latest GitHub Release asset
     (function setupLatestReleaseDownloads() {
