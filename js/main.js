@@ -20,15 +20,22 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', revealOnScroll);
     revealOnScroll(); // Initial check
     
-    // Autoplay section videos when they scroll into view
+    // Autoplay videos when they scroll into view (include hero + tutorial)
     const featureVideos = document.querySelectorAll('#features .feature-image-placeholder video');
     const designVideos = document.querySelectorAll('#design .design-video');
-    const allVideos = [...featureVideos, ...designVideos];
+    const heroVideos = document.querySelectorAll('.hero-image-placeholder video');
+    const tutorialVideos = document.querySelectorAll('#tutorial .step-video');
+    const allVideos = [...featureVideos, ...designVideos, ...heroVideos, ...tutorialVideos];
 
-    // Ensure videos don't load and play until needed
+    // Normalize attributes for mobile autoplay reliability
     allVideos.forEach(v => {
         try {
-            v.preload = 'metadata';
+            v.muted = true;
+            v.setAttribute('muted', '');
+            v.setAttribute('playsinline', '');
+            v.setAttribute('webkit-playsinline', '');
+            v.removeAttribute('controls');
+            v.preload = v.getAttribute('preload') || 'metadata';
             v.pause();
             v.currentTime = 0;
         } catch (e) { /* noop */ }
@@ -53,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target;
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.4) {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
                     playVideo(video);
                 } else {
                     pauseAndReset(video);
@@ -61,9 +68,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }, {
             root: null,
-            // Start a little before fully centered; negative bottom margin keeps playing until mostly out of view
-            rootMargin: '0px 0px -10% 0px',
-            threshold: [0, 0.2, 0.4, 0.6, 0.8, 1],
+            // Start when a quarter of the video is visible
+            rootMargin: '0px 0px -15% 0px',
+            threshold: [0, 0.25, 0.5, 0.75, 1],
         });
 
         allVideos.forEach(v => videoObserver.observe(v));
@@ -73,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const vh = window.innerHeight || document.documentElement.clientHeight;
             allVideos.forEach(v => {
                 const rect = v.getBoundingClientRect();
-                const visible = rect.top < vh * 0.6 && rect.bottom > vh * 0.4;
+                const visible = rect.top < vh * 0.75 && rect.bottom > vh * 0.25;
                 if (visible) {
                     playVideo(v);
                 } else {
@@ -92,6 +99,17 @@ document.addEventListener('DOMContentLoaded', function() {
             allVideos.forEach(pauseAndReset);
         }
     });
+
+    // As a final fallback, attempt play on first user interaction (iOS stricter modes)
+    const tryPlayAll = () => {
+        allVideos.forEach(v => {
+            try { v.play().catch(() => {}); } catch (_) {}
+        });
+        window.removeEventListener('touchstart', tryPlayAll, { passive: true });
+        window.removeEventListener('click', tryPlayAll, { passive: true });
+    };
+    window.addEventListener('touchstart', tryPlayAll, { passive: true });
+    window.addEventListener('click', tryPlayAll, { passive: true });
 
     // Dynamically point download links to the latest GitHub Release asset
     (function setupLatestReleaseDownloads() {

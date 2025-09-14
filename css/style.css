@@ -442,4 +442,38 @@ body {
     .design-media {
         height: 300px;
     }
+
+    /* Mobile video sizing: show full video without cropping */
+    .hero-image-placeholder {
+        width: 92%;
+        max-width: 700px;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        margin-top: 2rem;
+    }
+    .hero-image-placeholder video {
+        object-fit: contain;
+    }
+
+    .feature-image-placeholder {
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+    .feature-image-placeholder video {
+        object-fit: contain;
+    }
+
+    .design-media {
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+    .design-video {
+        object-fit: contain;
+    }
+
+    .step-image,
+    .step-video {
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
 }
