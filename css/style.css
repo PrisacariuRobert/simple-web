@@ -130,6 +130,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Scales the image to cover the container */
+    background: #000;
 }
 
 /* Features Section */
@@ -181,6 +182,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Scales the video to cover the container */
+    background: #000;
 }
 
 /* Design Section */
@@ -415,45 +417,145 @@ body {
         display: none; /* Simple responsive solution */
     }
 
+    .main-header {
+        padding: 1rem;
+    }
+
+    .hero {
+        padding: 100px 1rem 2rem;
+        min-height: auto;
+    }
+
     .hero-title {
         font-size: 3rem;
     }
 
     .hero-subtitle {
         font-size: 1.2rem;
+        margin: 1rem auto 2rem;
+    }
+
+    .hero-buttons {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-secondary {
+        margin-left: 0;
+    }
+
+    .hero-image-placeholder {
+        width: 95%;
+        height: 250px;
+        margin-top: 2rem;
+    }
+
+    .hero-image-placeholder video {
+        object-fit: contain;
+    }
+
+    .features-section {
+        padding: 50px 1rem;
     }
 
     .feature-item {
         grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 4rem;
     }
 
     .feature-item:nth-child(even) .feature-text {
         order: 0;
     }
 
-    .tutorial-steps {
-        flex-direction: column;
+    .feature-text h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-text p {
+        font-size: 1.1rem;
+    }
+
+    .feature-image-placeholder {
+        height: 250px;
+        width: 100%;
+    }
+
+    .feature-image-placeholder video {
+        object-fit: contain;
+        background: #000;
+    }
+
+    .design-section {
+        padding: 50px 1rem;
     }
 
     .design-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
-    .hero-image-placeholder {
-        width: 90%;
-        height: auto;
+    .design-copy {
+        padding: 1.5rem 2rem;
     }
 
-    .feature-image-placeholder,
+    .design-copy h2 {
+        font-size: 2rem;
+    }
+
+    .design-copy p {
+        font-size: 1.1rem;
+    }
+
     .design-media {
-        height: auto;
-        max-height: 50vh;
+        height: 250px;
     }
 
-    .hero-image-placeholder video,
-    .feature-image-placeholder video,
-    .design-video,
-    .step-video {
+    .design-video {
         object-fit: contain;
+        background: #000;
+    }
+
+    .tutorial-section {
+        padding: 50px 1rem;
+    }
+
+    .tutorial-section h2 {
+        font-size: 2rem;
+    }
+
+    .tutorial-steps {
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    .step-video {
+        height: 200px;
+        object-fit: contain;
+        background: #000;
+    }
+
+    .step-image {
+        height: 200px;
+    }
+
+    .footer-content h2 {
+        font-size: 2rem;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .admin-panel {
+        right: 12px;
+        bottom: 12px;
+        min-width: 200px;
     }
 }
