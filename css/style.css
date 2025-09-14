@@ -130,7 +130,6 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Scales the image to cover the container */
-    display: block;
 }
 
 /* Features Section */
@@ -182,7 +181,6 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Scales the video to cover the container */
-    display: block;
 }
 
 /* Design Section */
@@ -309,7 +307,6 @@ body {
     object-fit: cover;
     border-radius: 20px;
     margin-bottom: 1.5rem;
-    display: block;
 }
 
 .step h3 {
@@ -428,7 +425,6 @@ body {
 
     .feature-item {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
     }
 
     .feature-item:nth-child(even) .feature-text {
@@ -443,41 +439,21 @@ body {
         grid-template-columns: 1fr;
     }
 
+    .hero-image-placeholder {
+        width: 90%;
+        height: auto;
+    }
+
+    .feature-image-placeholder,
     .design-media {
         height: auto;
-        aspect-ratio: 16 / 9;
-        min-height: 220px; /* Fallback for older browsers */
+        max-height: 50vh;
     }
 
-    /* Ensure videos are fully visible on small screens (no cropping) */
-    .hero-image-placeholder {
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-        aspect-ratio: 16 / 9;
-        min-height: 220px; /* Fallback for older browsers */
-    }
-
-    .feature-image-placeholder {
-        height: auto;
-        aspect-ratio: 16 / 9;
-        background: rgba(255, 255, 255, 0.05);
-        min-height: 220px; /* Fallback for older browsers */
-    }
-
-    /* On mobile, favor contain to see the whole video, letterboxed if needed */
     .hero-image-placeholder video,
     .feature-image-placeholder video,
     .design-video,
     .step-video {
         object-fit: contain;
-        background-color: #000;
-    }
-
-    .feature-text h2 {
-        font-size: 2rem;
-    }
-    .feature-text p {
-        font-size: 1rem;
     }
 }

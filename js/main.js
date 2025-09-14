@@ -23,57 +23,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Autoplay section videos when they scroll into view
     const featureVideos = document.querySelectorAll('#features .feature-image-placeholder video');
     const designVideos = document.querySelectorAll('#design .design-video');
-    const stepVideos = document.querySelectorAll('.step-video');
-    const heroVideo = document.querySelector('.hero-image-placeholder video');
-    const allVideos = [
-        ...featureVideos,
-        ...designVideos,
-        ...stepVideos,
-        ...(heroVideo ? [heroVideo] : [])
-    ];
+    const allVideos = [...featureVideos, ...designVideos];
 
-    // Ensure mobile inline playback compatibility + defer heavy loading
+    // Ensure videos don't load and play until needed
     allVideos.forEach(v => {
         try {
-            const wantsAutoplay = v.hasAttribute('autoplay');
-            v.setAttribute('muted', '');
-            v.muted = true; // iOS requires the property as well
-            v.defaultMuted = true;
-            v.setAttribute('playsinline', '');
-            v.setAttribute('webkit-playsinline', '');
-            v.playsInline = true;
-            v.removeAttribute('controls');
-            // Respect author intent: if autoplay requested, keep eager preload
-            v.preload = wantsAutoplay ? (v.getAttribute('preload') || 'auto') : 'metadata';
-            if (!wantsAutoplay) {
-                v.pause();
-                v.currentTime = 0;
-            }
-
-            // Light diagnostics & resilience
-            const src = v.currentSrc || (v.querySelector('source') && v.querySelector('source').src) || '';
-            const log = (e) => {
-                try { console.debug('[video]', e.type, src, { readyState: v.readyState, paused: v.paused }); } catch (_) {}
-            };
-            ['loadedmetadata','canplay','canplaythrough','playing','pause','waiting','stalled','error'].forEach(evt => v.addEventListener(evt, log, { passive: true }));
-            v.addEventListener('error', () => { try { v.setAttribute('controls', ''); } catch (_) {} }, { passive: true });
-            v.addEventListener('canplay', () => { if (wantsAutoplay && v.paused) playVideo(v); }, { passive: true });
-            v.addEventListener('waiting', () => { if (wantsAutoplay && v.paused) playVideo(v); }, { passive: true });
+            v.preload = 'metadata';
+            v.pause();
+            v.currentTime = 0;
         } catch (e) { /* noop */ }
     });
 
-    const ensureCanPlay = (video) => {
-        // If only metadata is loaded, ask the browser to fetch enough to play
-        try {
-            if (video.readyState < 2 /* HAVE_CURRENT_DATA */) {
-                video.load();
-            }
-        } catch (_) { /* noop */ }
-    };
-
     const playVideo = (video) => {
         if (!video) return;
-        ensureCanPlay(video);
         const playPromise = video.play();
         if (playPromise && typeof playPromise.then === 'function') {
             playPromise.catch(() => {});
@@ -82,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const pauseAndReset = (video) => {
         if (!video) return;
-        if (video.hasAttribute('autoplay')) return; // Don't fight videos that are meant to keep playing
         video.pause();
         // Reset so it starts from the beginning next time
         video.currentTime = 0;
@@ -92,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target;
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.4) {
                     playVideo(video);
                 } else {
                     pauseAndReset(video);
@@ -100,9 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }, {
             root: null,
-            // Trigger earlier on small screens
-            rootMargin: '15% 0% -5% 0%',
-            threshold: [0, 0.05, 0.1, 0.25, 0.5, 0.75, 1],
+            // Start a little before fully centered; negative bottom margin keeps playing until mostly out of view
+            rootMargin: '0px 0px -10% 0px',
+            threshold: [0, 0.2, 0.4, 0.6, 0.8, 1],
         });
 
         allVideos.forEach(v => videoObserver.observe(v));
@@ -124,25 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('resize', checkVideosInView);
         checkVideosInView();
     }
-
-    // Try to play the hero video immediately (most devices will allow muted inline autoplay)
-    if (heroVideo) {
-        playVideo(heroVideo);
-    }
-
-    // iOS safety net: on first user interaction, try to play any in-view videos
-    const tryKickstart = () => {
-        const vh = window.innerHeight || document.documentElement.clientHeight;
-        allVideos.forEach(v => {
-            const r = v.getBoundingClientRect();
-            const visible = r.top < vh * 0.9 && r.bottom > vh * 0.1;
-            if (visible) playVideo(v);
-        });
-    };
-    window.addEventListener('touchstart', tryKickstart, { once: true, passive: true });
-    window.addEventListener('click', tryKickstart, { once: true, passive: true });
-    // Also attempt once shortly after load for currently visible videos
-    setTimeout(tryKickstart, 300);
 
     // Pause all videos if the tab becomes hidden
     document.addEventListener('visibilitychange', () => {
