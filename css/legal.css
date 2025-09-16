@@ -1,0 +1,93 @@
+/* Legal pages: container and typography */
+.legal-container {
+  max-width: 900px;
+  margin: 140px auto 80px; /* account for fixed header */
+  padding: 0 1.25rem;
+}
+
+.legal-container h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.legal-meta, .legal-updated {
+  color: #a9a9a9;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.legal-container h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 2.25rem 0 0.75rem 0;
+}
+
+.legal-container h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem 0;
+}
+
+.legal-container p,
+.legal-container li {
+  color: #cfcfcf;
+  line-height: 1.8;
+}
+
+.legal-toc {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 1rem 0;
+}
+
+.legal-toc li {
+  margin: 0.25rem 0;
+}
+
+.legal-toc a,
+.legal-container a {
+  color: #9ad0ff;
+  text-decoration: none;
+}
+
+.legal-toc a:hover,
+.legal-container a:hover {
+  text-decoration: underline;
+}
+
+.legal-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 1.25rem 1.25rem;
+}
+
+.legal-divider {
+  border: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 2rem 0;
+}
+
+/* Make anchors legible when jumped to under fixed header */
+:target::before {
+  content: "";
+  display: block;
+  height: 90px; /* approximate header height */
+  margin-top: -90px;
+  visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  .legal-container {
+    margin: 110px auto 60px;
+    padding: 0 1rem;
+  }
+  .legal-container h1 {
+    font-size: 2rem;
+  }
+  .legal-container h2 {
+    font-size: 1.4rem;
+  }
+}
